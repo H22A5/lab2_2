@@ -146,4 +146,28 @@ class SimilarityFinderTest {
         int invokeCount = searcherMock.getClass().getDeclaredField("invokeCounter").getInt(searcherMock);
         assertEquals(0, invokeCount);
     }
+
+    @Test
+    public void shouldFindOneElementFromFirstSequenceInSecondSequence() throws NoSuchFieldException, IllegalAccessException {
+        int[] seq1 = {1, 2, 3};
+        int[] seq2 = {1, 4, 5};
+        SequenceSearcher searcherMock = new SequenceSearcher() {
+            public int foundCounter = 0;
+
+            @Override
+            public SearchResult search(int elem, int[] sequence) {
+                if (elem == 1) {
+                    foundCounter++;
+                    return SearchResult.builder().withFound(true).build();
+                }
+                return SearchResult.builder().withFound(false).build();
+            }
+        };
+        SimilarityFinder finder = new SimilarityFinder(searcherMock);
+
+        finder.calculateJackardSimilarity(seq1, seq2);
+
+        int foundCount = searcherMock.getClass().getDeclaredField("foundCounter").getInt(searcherMock);
+        assertEquals(1, foundCount);
+    }
 }
